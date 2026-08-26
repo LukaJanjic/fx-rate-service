@@ -23,4 +23,11 @@ public readonly record struct Money(decimal Amount, CurrencyCode Currency)
                 "Konverzija mora biti eksplicitna.");
         }
     }
+
+    /// <summary>
+    /// Zaokruzuje na broj decimala svoje valute.
+    /// Zove se JEDNOM, na kraju lanca izracunavanja — nikad na medjurezultatu.
+    /// </summary>
+    public Money Round(MidpointRounding mode = Rounding.DefaultMode) =>
+        this with { Amount = Rounding.ToScale(Amount, CurrencyScale.For(Currency), mode) };
 }
