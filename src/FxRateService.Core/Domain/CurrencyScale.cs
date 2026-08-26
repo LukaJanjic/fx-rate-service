@@ -1,6 +1,6 @@
 using System.Collections.Frozen;
 
-namespace FxRateService.Core.Money;
+namespace FxRateService.Core.Domain;
 
 /// <summary>
 /// Broj decimala u kojem se valuta iskazuje (ISO 4217 minor unit).

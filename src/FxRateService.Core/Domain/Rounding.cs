@@ -1,4 +1,4 @@
-namespace FxRateService.Core.Money;
+namespace FxRateService.Core.Domain;
 
 public static class Rounding
 {

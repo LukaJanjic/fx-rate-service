@@ -1,6 +1,6 @@
-using FxRateService.Core.Money;
+using FxRateService.Core.Domain;
 
-namespace FxRateService.UnitTests.Money;
+namespace FxRateService.UnitTests.Domain;
 
 public class CurrencyScaleTests
 {
