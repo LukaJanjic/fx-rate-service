@@ -44,4 +44,20 @@ public readonly record struct ExchangeRate
     /// decimalom moze dati beskonacan razlomak koji se odseca.
     /// </summary>
     public ExchangeRate Invert() => new(Quote, Base, 1m / Value);
+    /// <summary>
+    /// Racuna izveden kurs iz dva kursa sa istom baznom valutom.
+    /// EUR/USD i EUR/RSD daju USD/RSD.
+    /// Rezultat NIJE objavljen kurs — to je izracunata vrednost.
+    /// </summary>
+    public static ExchangeRate Cross(ExchangeRate from, ExchangeRate to)
+    {
+        if (from.Base != to.Base)
+        {
+            throw new InvalidOperationException(
+                $"Kursevi nemaju istu baznu valutu: {from.Base.Value} i {to.Base.Value}. " +
+                "Cross-rate se racuna samo preko zajednicke bazne valute.");
+        }
+
+        return Of(from.Quote, to.Quote, to.Value / from.Value);
+    }
 }
