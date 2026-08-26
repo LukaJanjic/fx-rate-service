@@ -46,7 +46,7 @@ public class CurrencyConverterTests
         Assert.Equal(10m, result.Amount);
         Assert.Equal("EUR", result.Currency.Value);
     }
-        [Fact]
+    [Fact]
     public void Convert_koristi_cross_rate_preko_evra()
     {
         var eurUsd = ExchangeRate.Of("EUR", "USD", 2m);
@@ -57,5 +57,27 @@ public class CurrencyConverterTests
 
         Assert.Equal(600m, result.Amount);
         Assert.Equal("RSD", result.Currency.Value);
+    }
+    [Fact]
+    public void Convert_sa_stvarnim_kursevima_zaokruzuje_na_dve_decimale()
+    {
+        var eurUsd = ExchangeRate.Of("EUR", "USD", 1.0850m);
+        var eurRsd = ExchangeRate.Of("EUR", "RSD", 117.2050m);
+        var converter = new CurrencyConverter([eurUsd, eurRsd]);
+
+        var result = converter.Convert(Money.Of(100m, "USD"), CurrencyCode.Parse("RSD"));
+
+        Assert.Equal(10802.30m, result.Amount);
+    }
+
+    [Fact]
+    public void Convert_u_JPY_nema_decimala()
+    {
+        var eurJpy = ExchangeRate.Of("EUR", "JPY", 163.4500m);
+        var converter = new CurrencyConverter([eurJpy]);
+
+        var result = converter.Convert(Money.Of(100m, "EUR"), CurrencyCode.Parse("JPY"));
+
+        Assert.Equal(16345m, result.Amount);
     }
 }
