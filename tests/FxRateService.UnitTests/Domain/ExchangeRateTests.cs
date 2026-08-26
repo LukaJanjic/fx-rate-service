@@ -27,4 +27,33 @@ public class ExchangeRateTests
         Assert.Throws<ArgumentException>(
             () => ExchangeRate.Of("EUR", "EUR", 1m));
     }
+
+    [Fact]
+    public void Invert_okrece_par_valuta()
+    {
+        var rate = ExchangeRate.Of("EUR", "USD", 1.0850m);
+
+        var inverted = rate.Invert();
+
+        Assert.Equal("USD", inverted.Base.Value);
+        Assert.Equal("EUR", inverted.Quote.Value);
+    }
+
+    [Fact]
+    public void Invert_racuna_reciprocnu_vrednost()
+    {
+        var rate = ExchangeRate.Of("EUR", "USD", 2m);
+
+        Assert.Equal(0.5m, rate.Invert().Value);
+    }
+
+    [Fact]
+    public void Invert_dva_puta_vraca_priblizno_original()
+    {
+        var rate = ExchangeRate.Of("EUR", "USD", 1.0850m);
+
+        var round_trip = rate.Invert().Invert();
+
+        Assert.Equal(1.0850m, round_trip.Value, precision: 10);
+    }
 }

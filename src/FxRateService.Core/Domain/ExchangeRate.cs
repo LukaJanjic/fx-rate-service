@@ -37,4 +37,11 @@ public readonly record struct ExchangeRate
 
         return new ExchangeRate(baseCurrency, quote, value);
     }
+
+    /// <summary>
+    /// Vraca kurs u suprotnom smeru: EUR/USD = 1.0850 postaje USD/EUR = 0.9217...
+    /// Napomena: Invert().Invert() NIJE tacno jednako originalu — deljenje
+    /// decimalom moze dati beskonacan razlomak koji se odseca.
+    /// </summary>
+    public ExchangeRate Invert() => new(Quote, Base, 1m / Value);
 }
