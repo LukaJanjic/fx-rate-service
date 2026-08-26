@@ -78,4 +78,13 @@ public class ExchangeRateTests
 
         Assert.Throws<InvalidOperationException>(() => ExchangeRate.Cross(eurUsd, gbpRsd));
     }
+    [Fact]
+    public void Invert_gubi_preciznost_kod_periodicnih_razlomaka()
+    {
+        var rate = ExchangeRate.Of("EUR", "RSD", 120m);
+
+        // 1/120 je beskonacan razlomak — decimal ga odseca.
+        // Zato se rezultat konverzije MORA zaokruziti na kraju.
+        Assert.NotEqual(120m, 1m / rate.Invert().Value);
+    }
 }
