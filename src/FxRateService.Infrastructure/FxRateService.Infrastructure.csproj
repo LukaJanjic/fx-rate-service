@@ -1,0 +1,7 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\FxRateService.Core\FxRateService.Core.csproj" />
+  </ItemGroup>
+
+</Project>

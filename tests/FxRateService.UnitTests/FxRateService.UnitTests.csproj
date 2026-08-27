@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FxRateService.Core\FxRateService.Core.csproj" />
+    <ProjectReference Include="..\..\src\FxRateService.Infrastructure\FxRateService.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
