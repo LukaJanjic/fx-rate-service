@@ -13,7 +13,7 @@ public sealed class FxDbContextDesignTimeFactory : IDesignTimeDbContextFactory<F
     public FxDbContext CreateDbContext(string[] args)
     {
         var options = new DbContextOptionsBuilder<FxDbContext>()
-            .UseNpgsql("Host=localhost;Database=fxrates;Username=postgres;Password=postgres")
+            .UseNpgsql("Host=localhost;Port=5433;Database=fxrates;Username=postgres;Password=postgres")
             .Options;
 
         return new FxDbContext(options);
