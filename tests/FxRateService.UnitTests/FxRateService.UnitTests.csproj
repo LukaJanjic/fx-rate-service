@@ -7,16 +7,15 @@
 
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Fixtures\*.xml" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
   <ItemGroup>
-    <EmbeddedResource Include="Fixtures\*.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
+    <PackageReference Include="xunit.v3.mtp-v2" />
   </ItemGroup>
 
   <ItemGroup>

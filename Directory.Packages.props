@@ -1,0 +1,21 @@
+<Project>
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup Label="EF Core — verzije MORAJU biti uskladjene sa Npgsql provajderom">
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.4" />
+  </ItemGroup>
+
+  <ItemGroup Label="Otpornost i DI">
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.9.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testiranje">
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>
