@@ -1,22 +1,32 @@
 using FxRateService.Core.Abstractions;
+using FxRateService.Infrastructure.Persistence;
 using FxRateService.Infrastructure.Providers.Ecb;
+using FxRateService.Infrastructure.Time;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
 
 namespace FxRateService.Infrastructure;
 
-/// <summary>
-/// Jedina tacka kroz koju Api projekat zna za Infrastructure.
-/// </summary>
 public static class InfrastructureServiceCollectionExtensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, string? postgresConnectionString = null)
     {
+        services.AddSingleton<IClock, SystemClock>();
+
+        if (postgresConnectionString is not null)
+        {
+            services.AddDbContext<FxDbContext>(options =>
+                options.UseNpgsql(postgresConnectionString));
+
+            services.AddScoped<IRateRepository, PostgresRateRepository>();
+        }
+
         services.AddHttpClient<IRateProvider, EcbRateProvider>()
             .AddResilienceHandler("ecb", builder =>
             {
-                // Spoljasnji sloj: odlucuje da li se ceo pokusaj ponavlja.
                 builder.AddRetry(new HttpRetryStrategyOptions
                 {
                     MaxRetryAttempts = 3,
@@ -25,7 +35,6 @@ public static class InfrastructureServiceCollectionExtensions
                     UseJitter = true,
                 });
 
-                // Srednji sloj: prestaje da pokusava kad izvor ocigledno ne radi.
                 builder.AddCircuitBreaker(new HttpCircuitBreakerStrategyOptions
                 {
                     FailureRatio = 0.5,
@@ -34,7 +43,6 @@ public static class InfrastructureServiceCollectionExtensions
                     BreakDuration = TimeSpan.FromSeconds(30),
                 });
 
-                // Unutrasnji sloj: ogranicava JEDAN pokusaj, ne ceo lanac.
                 builder.AddTimeout(TimeSpan.FromSeconds(10));
             });
 
