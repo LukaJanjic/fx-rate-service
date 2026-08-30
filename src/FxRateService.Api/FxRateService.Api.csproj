@@ -4,4 +4,9 @@
     <ProjectReference Include="..\FxRateService.Infrastructure\FxRateService.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+  </ItemGroup>
+
 </Project>
