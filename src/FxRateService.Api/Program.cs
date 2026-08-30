@@ -1,3 +1,4 @@
+using FxRateService.Api.Endpoints;
 using FxRateService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,5 +18,5 @@ builder.Services.AddHealthChecks()
 var app = builder.Build();
 
 app.MapHealthChecks("/health");
-
+app.MapRatesEndpoints();
 app.Run();
