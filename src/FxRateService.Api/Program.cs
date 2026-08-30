@@ -22,5 +22,5 @@ var app = builder.Build();
 
 app.MapHealthChecks("/health");
 app.MapRatesEndpoints();
-
+app.MapConversionEndpoints();
 app.Run();
