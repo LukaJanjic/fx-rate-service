@@ -1,5 +1,6 @@
 using FxRateService.Api.Contracts;
 using FxRateService.Core.Abstractions;
+using FxRateService.Core.Domain;
 
 namespace FxRateService.Api.Endpoints;
 
@@ -10,6 +11,7 @@ public static class RatesEndpoints
     public static void MapRatesEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapGet("/api/rates", GetLatestAsync);
+        app.MapGet("/api/rates/history", GetHistoryAsync);
     }
 
     private static async Task<IResult> GetLatestAsync(
@@ -41,5 +43,38 @@ public static class RatesEndpoints
             .ToList();
 
         return Results.Ok(new RatesResponse(snapshot.AsOf, DefaultSource, rates));
+    }
+        private static async Task<IResult> GetHistoryAsync(
+        IRateRepository repository,
+        CancellationToken cancellationToken,
+        string baseCurrency,
+        string quote,
+        DateOnly from,
+        DateOnly to)
+    {
+        if (!CurrencyCode.TryParse(baseCurrency, out var parsedBase)
+            || !CurrencyCode.TryParse(quote, out var parsedQuote))
+        {
+            return Results.Problem(
+                detail: "Kod valute mora biti ISO 4217 alfa-3.",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (from > to)
+        {
+            return Results.Problem(
+                detail: "Pocetak perioda ne moze biti posle kraja.",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        var history = await repository.GetHistoryAsync(
+            parsedBase, parsedQuote, from, to, DefaultSource, cancellationToken);
+
+        var points = history
+            .Select(h => new HistoryPoint(h.AsOf, h.Rate.Value))
+            .ToList();
+
+        return Results.Ok(new HistoryResponse(
+            parsedBase.Value, parsedQuote.Value, DefaultSource, points));
     }
 }
