@@ -31,7 +31,7 @@ public class MoneyTests
         Assert.Throws<InvalidOperationException>(() => rsd.Add(eur));
     }
 
-        [Fact]
+    [Fact]
     public void Round_koristi_skalu_valute_za_EUR()
     {
         var money = Money.Of(10.126m, "EUR");

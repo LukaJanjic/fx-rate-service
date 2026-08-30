@@ -31,7 +31,7 @@ public class EcbRateParserTests
         Assert.All(snapshot.Rates, rate => Assert.Equal("EUR", rate.Base.Value));
     }
 
-        [Fact]
+    [Fact]
     public void Parse_cita_tacne_vrednosti_kurseva()
     {
         var snapshot = EcbRateParser.Parse(DailyXml);

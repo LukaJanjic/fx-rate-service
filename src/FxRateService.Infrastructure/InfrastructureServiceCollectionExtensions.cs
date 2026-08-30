@@ -1,4 +1,5 @@
 using FxRateService.Core.Abstractions;
+using FxRateService.Infrastructure.Caching;
 using FxRateService.Infrastructure.Persistence;
 using FxRateService.Infrastructure.Providers.Ecb;
 using FxRateService.Infrastructure.Time;
@@ -6,13 +7,16 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http.Resilience;
 using Polly;
+using StackExchange.Redis;
 
 namespace FxRateService.Infrastructure;
 
 public static class InfrastructureServiceCollectionExtensions
 {
     public static IServiceCollection AddInfrastructure(
-        this IServiceCollection services, string? postgresConnectionString = null)
+    this IServiceCollection services,
+    string? postgresConnectionString = null,
+    string? redisConnectionString = null)
     {
         services.AddSingleton<IClock, SystemClock>();
 
@@ -24,6 +28,13 @@ public static class InfrastructureServiceCollectionExtensions
             services.AddScoped<IRateRepository, PostgresRateRepository>();
         }
 
+        if (redisConnectionString is not null)
+        {
+            services.AddSingleton<IConnectionMultiplexer>(
+                _ => ConnectionMultiplexer.Connect(redisConnectionString));
+
+            services.AddSingleton<IRateCache, RedisRateCache>();
+        }
         services.AddHttpClient<IRateProvider, EcbRateProvider>()
             .AddResilienceHandler("ecb", builder =>
             {

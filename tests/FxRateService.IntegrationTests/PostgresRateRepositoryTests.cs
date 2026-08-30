@@ -112,7 +112,7 @@ public class PostgresRateRepositoryTests : IClassFixture<PostgresFixture>
         Assert.Equal(new DateOnly(2026, 8, 26), history[2].AsOf);
         Assert.Equal(1.1650m, history[1].Rate.Value);
     }
-        [Fact]
+    [Fact]
     public async Task GetHistoryAsync_ukljucuje_granicne_datume_a_iskljucuje_ostale()
     {
         await using var db = _postgres.CreateDbContext();
