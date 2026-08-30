@@ -1,4 +1,6 @@
+using FxRateService.Api.BackgroundJobs;
 using FxRateService.Api.Endpoints;
+using FxRateService.Core.Rates;
 using FxRateService.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,9 +16,11 @@ builder.Services.AddHealthChecks()
     .AddRedis(
         builder.Configuration.GetConnectionString("Redis")!,
         name: "redis");
-
+builder.Services.AddScoped<RateRefresher>();
+builder.Services.AddHostedService<RateRefreshService>();
 var app = builder.Build();
 
 app.MapHealthChecks("/health");
 app.MapRatesEndpoints();
+
 app.Run();
