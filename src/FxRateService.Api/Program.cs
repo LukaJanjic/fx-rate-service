@@ -2,8 +2,12 @@ using FxRateService.Api.BackgroundJobs;
 using FxRateService.Api.Endpoints;
 using FxRateService.Core.Rates;
 using FxRateService.Infrastructure;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddInfrastructure(
     postgresConnectionString: builder.Configuration.GetConnectionString("Postgres"),
@@ -19,7 +23,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddScoped<RateRefresher>();
 builder.Services.AddHostedService<RateRefreshService>();
 var app = builder.Build();
-
+app.UseSerilogRequestLogging();
 app.MapHealthChecks("/health");
 app.MapRatesEndpoints();
 app.MapConversionEndpoints();

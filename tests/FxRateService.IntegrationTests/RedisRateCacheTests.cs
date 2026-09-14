@@ -1,6 +1,6 @@
 using FxRateService.Core.Domain;
 using FxRateService.Infrastructure.Caching;
-
+using Microsoft.Extensions.Logging.Abstractions;
 namespace FxRateService.IntegrationTests;
 
 public class RedisRateCacheTests : IClassFixture<RedisFixture>
@@ -12,7 +12,7 @@ public class RedisRateCacheTests : IClassFixture<RedisFixture>
     [Fact]
     public async Task GetAsync_vraca_null_kad_nema_unosa()
     {
-        var cache = new RedisRateCache(_redis.Connection);
+                var cache = new RedisRateCache(_redis.Connection, NullLogger<RedisRateCache>.Instance);
 
         var result = await cache.GetAsync("TEST-EMPTY", CancellationToken.None);
 
@@ -22,7 +22,7 @@ public class RedisRateCacheTests : IClassFixture<RedisFixture>
     [Fact]
     public async Task SetAsync_pa_GetAsync_vraca_iste_kurseve()
     {
-        var cache = new RedisRateCache(_redis.Connection);
+                var cache = new RedisRateCache(_redis.Connection, NullLogger<RedisRateCache>.Instance);
 
         var snapshot = RateSnapshot.Of(new DateOnly(2026, 8, 26),
         [
@@ -43,7 +43,7 @@ public class RedisRateCacheTests : IClassFixture<RedisFixture>
     [Fact]
     public async Task InvalidateAsync_brise_unos()
     {
-        var cache = new RedisRateCache(_redis.Connection);
+                var cache = new RedisRateCache(_redis.Connection, NullLogger<RedisRateCache>.Instance);
 
         var snapshot = RateSnapshot.Of(new DateOnly(2026, 8, 26),
             [ExchangeRate.Of("EUR", "USD", 1.1669m)]);

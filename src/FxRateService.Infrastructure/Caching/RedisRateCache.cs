@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FxRateService.Core.Abstractions;
 using FxRateService.Core.Domain;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace FxRateService.Infrastructure.Caching;
@@ -8,6 +9,7 @@ namespace FxRateService.Infrastructure.Caching;
 /// <summary>
 /// Cache-aside nad Redisom. TTL je sigurnosna mreza — glavni mehanizam
 /// je eksplicitna invalidacija posle refresh-a.
+/// Pad Redisa NE sme da obori zahtev: izvor istine je baza.
 /// </summary>
 public sealed class RedisRateCache : IRateCache
 {
@@ -19,12 +21,27 @@ public sealed class RedisRateCache : IRateCache
     };
 
     private readonly IConnectionMultiplexer _redis;
+    private readonly ILogger<RedisRateCache> _logger;
 
-    public RedisRateCache(IConnectionMultiplexer redis) => _redis = redis;
+    public RedisRateCache(IConnectionMultiplexer redis, ILogger<RedisRateCache> logger)
+    {
+        _redis = redis;
+        _logger = logger;
+    }
 
     public async Task<RateSnapshot?> GetAsync(string source, CancellationToken cancellationToken)
     {
-        var value = await _redis.GetDatabase().StringGetAsync(KeyFor(source));
+        RedisValue value;
+
+        try
+        {
+            value = await _redis.GetDatabase().StringGetAsync(KeyFor(source));
+        }
+        catch (RedisConnectionException ex)
+        {
+            _logger.LogWarning(ex, "Redis nedostupan pri citanju — nastavljam sa bazom.");
+            return null;
+        }
 
         if (value.IsNullOrEmpty)
         {
@@ -63,12 +80,26 @@ public sealed class RedisRateCache : IRateCache
 
         var json = JsonSerializer.Serialize(dto, JsonOptions);
 
-        await _redis.GetDatabase().StringSetAsync(KeyFor(source), json, Ttl);
+        try
+        {
+            await _redis.GetDatabase().StringSetAsync(KeyFor(source), json, Ttl);
+        }
+        catch (RedisConnectionException ex)
+        {
+            _logger.LogWarning(ex, "Redis nedostupan pri upisu — preskacem cache.");
+        }
     }
 
     public async Task InvalidateAsync(string source, CancellationToken cancellationToken)
     {
-        await _redis.GetDatabase().KeyDeleteAsync(KeyFor(source));
+        try
+        {
+            await _redis.GetDatabase().KeyDeleteAsync(KeyFor(source));
+        }
+        catch (RedisConnectionException ex)
+        {
+            _logger.LogWarning(ex, "Redis nedostupan pri invalidaciji — unos ce isteci po TTL-u.");
+        }
     }
 
     private static string KeyFor(string source) => $"rates:latest:{source}";

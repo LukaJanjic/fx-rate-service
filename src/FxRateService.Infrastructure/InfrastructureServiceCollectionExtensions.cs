@@ -30,8 +30,18 @@ public static class InfrastructureServiceCollectionExtensions
 
         if (redisConnectionString is not null)
         {
-            services.AddSingleton<IConnectionMultiplexer>(
-                _ => ConnectionMultiplexer.Connect(redisConnectionString));
+            services.AddSingleton<IConnectionMultiplexer>(_ =>
+     {
+         var options = ConfigurationOptions.Parse(redisConnectionString);
+         options.AbortOnConnectFail = false;
+         options.ConnectTimeout = 500;
+         options.SyncTimeout = 500;
+         options.ConnectRetry = 1;
+         options.ConnectRetry = 1;
+         options.BacklogPolicy = BacklogPolicy.FailFast;
+
+         return ConnectionMultiplexer.Connect(options);
+     });
 
             services.AddSingleton<IRateCache, RedisRateCache>();
         }
