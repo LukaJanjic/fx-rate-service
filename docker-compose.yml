@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: fxrates
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fxrates"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: src/FxRateService.Api/Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=fxrates;Username=postgres;Password=postgres"
+      ConnectionStrings__Redis: "redis:6379"
+      RateRefresh__IntervalMinutes: "240"
+      RunMigrationsOnStartup: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:

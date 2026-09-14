@@ -3,6 +3,8 @@ using FxRateService.Api.Endpoints;
 using FxRateService.Core.Rates;
 using FxRateService.Infrastructure;
 using Serilog;
+using FxRateService.Infrastructure.Persistence; 
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +25,12 @@ builder.Services.AddHealthChecks()
 builder.Services.AddScoped<RateRefresher>();
 builder.Services.AddHostedService<RateRefreshService>();
 var app = builder.Build();
+if (app.Configuration.GetValue("RunMigrationsOnStartup", false))
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<FxDbContext>();
+    await db.Database.MigrateAsync();
+}
 app.UseSerilogRequestLogging();
 app.MapHealthChecks("/health");
 app.MapRatesEndpoints();
