@@ -16,12 +16,14 @@
   <ItemGroup>
     <PackageReference Include="xunit.v3.mtp-v2" />
     <PackageReference Include="Testcontainers.PostgreSql" />
-        <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Testcontainers.Redis" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FxRateService.Core\FxRateService.Core.csproj" />
     <ProjectReference Include="..\..\src\FxRateService.Infrastructure\FxRateService.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\FxRateService.Api\FxRateService.Api.csproj" />
   </ItemGroup>
 
 </Project>
